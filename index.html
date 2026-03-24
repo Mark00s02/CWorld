@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌿 Cosy World 3D</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen">
+  <div class="title-leaves" id="title-leaves"></div>
+  <div class="title-main" style="animation-delay:0.1s;">🌿 CWorld</div>
+  <div class="title-sub">A Cosy Adventure</div>
+  <div class="title-by">Created by Mark00s</div>
+  <div style="margin-top:40px;color:rgba(82,183,136,0.4);font-size:0.75rem;animation:titleFadeUp 0.6s ease 1.2s forwards;opacity:0;">Loading world...</div>
+</div>
+
+<!-- SIDE CHOOSER -->
+<div id="side-chooser">
+  <h1>🌿 Cosy World 3D</h1>
+  <p>Choose your allegiance. Will you protect the village and its people, or embrace the darkness and conquer it?</p>
+  <div class="side-cards">
+    <div class="side-card human" id="choose-human">
+      <span class="ico">🌿</span>
+      <h2>Village Side</h2>
+      <ul>
+        <li>🏠 Help build the village</li>
+        <li>🌾 Protect farm animals</li>
+        <li>⚔️ Hunt wild creatures</li>
+        <li>🎣 Fish & gather resources</li>
+        <li>🌳 Plant trees & grow</li>
+        <li>💊 Heal injured villagers</li>
+      </ul>
+    </div>
+    <div class="side-card wild" id="choose-wild">
+      <span class="ico">💀</span>
+      <h2>Wild Side</h2>
+      <ul>
+        <li>💀 Summon undead hordes</li>
+        <li>🐺 Command wild beasts</li>
+        <li>🌑 Grow stronger at night</li>
+        <li>🔥 Raze villages</li>
+        <li>⚡ Power from NPC kills</li>
+        <li>🌲 Rule the forest</li>
+      </ul>
+    </div>
+    <div class="side-card" id="choose-build" style="background:rgba(20,40,80,0.7);border-color:#4cc9f0;max-width:220px;text-align:center;cursor:pointer;">
+      <span class="ico">🏗️</span>
+      <h2 style="color:#4cc9f0;">Build Mode</h2>
+      <ul>
+        <li>🧱 Free build sandbox</li>
+        <li>🌍 Shape the world freely</li>
+        <li>🏠 Place any tile anywhere</li>
+        <li>⬆ Elevation control</li>
+        <li>🌲 No enemies</li>
+        <li>✨ Unlimited resources</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PAUSE / LOCK OVERLAY -->
+<div id="lock-overlay">
+  <h2 id="lock-title">⏸ Paused</h2>
+  <p id="lock-hint" style="font-size:0.8rem;color:#74c69d;">W/S Fwd·Back · A/D Left·Right · Mouse Look · LClick Action · F Interact · Space Jump</p>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;align-items:center;">
+    <div class="start-btn" id="btn-continue" style="cursor:pointer;min-width:160px;text-align:center;">▶ Continue</div>
+    <div class="start-btn" id="btn-save-pause" style="background:#4cc9f0;cursor:pointer;min-width:160px;text-align:center;">💾 Save</div>
+    <div class="start-btn" id="btn-mainmenu" style="background:#e63946;cursor:pointer;min-width:160px;text-align:center;">🏠 Main Menu</div>
+  </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="hud-left">
+    <div class="pill pill-green" id="side-pill">🌿 Village</div>
+    <div class="pill pill-green">🪙 <span id="hud-coins">0</span></div>
+    <div class="pill pill-green" id="pill-animals">🐄 <span id="hud-animals">0</span> alive</div>
+    <div class="pill pill-green" id="pill-npcs">👥 <span id="hud-npcs">0</span> villagers</div>
+  </div>
+  <div id="hud-right">
+    <div class="pill pill-green" id="pill-day">☀️ <span id="hud-time">Day 1</span></div>
+    <div class="pill pill-green" id="pill-coords">📍 <span id="hud-coords">0, 0</span></div>
+    <div class="pill pill-green" id="pill-event" style="display:none">⚠️ <span id="hud-event">-</span></div>
+  </div>
+</div>
+
+<!-- PLAYER HP BAR -->
+<div id="player-hp-wrap" style="position:fixed;bottom:72px;left:50%;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:2px;z-index:10;pointer-events:none;">
+  <div style="width:160px;height:8px;background:rgba(0,0,0,0.5);border-radius:4px;border:1px solid rgba(255,100,100,0.4);overflow:hidden;">
+    <div id="player-hp-fill" style="height:100%;width:100%;background:#52b788;border-radius:4px;transition:width .2s,background .2s;"></div>
+  </div>
+  <div id="player-hp-label" style="font-size:10px;color:#d8f3dc;font-weight:700;">❤️ 100 / 100</div>
+</div>
+
+<!-- TIME BAR -->
+<div id="timebar-wrap">
+  <div id="timebar"><div id="timebar-fill"></div></div>
+  <div id="time-label">Morning</div>
+</div>
+
+<div id="crosshair"></div>
+<div id="event-banner"></div>
+<!-- NOTIFICATION LOG -->
+<div id="notif-log" style="position:fixed;top:130px;left:14px;z-index:11;pointer-events:none;display:flex;flex-direction:column;gap:3px;"></div>
+
+<!-- HOTBAR -->
+<div id="hotbar"></div>
+<!-- Build palette (shown when placing tiles) -->
+<div id="palette" style="display:none"></div>
+
+<!-- CONTROLS -->
+<div id="controls-hint">
+  <b>W/S</b> Fwd / Back<br>
+  <b>A/D</b> Left / Right<br>
+  <b>Shift</b> Sprint<br>
+  <b>Mouse</b> Look<br>
+  <b>LClick</b> Place/Action<br>
+  <b>RClick</b> Erase<br>
+  <b>Space</b> Jump<br>
+  <b>Alt</b> Free cursor<br>
+  <b>B / I</b> Bag<br>
+  <b>F</b> Interact/Chop/Fish<br>
+  <b>Tab</b> Next tile<br>
+  <b>Esc</b> Unlock
+</div>
+
+<div id="action-bar">
+  <button class="ab" id="btn-sound" style="background:#52b788;color:#081c15;">🔊 Sound</button>
+  <button class="ab" id="btn-inv"   style="background:#f4a261;color:#1a1a2e;">🎒 Bag</button>
+  <button class="ab" id="btn-save"  style="background:#4cc9f0;color:#081c15;">💾 Save</button>
+</div>
+
+<div id="dpad">
+  <div class="db db-blank"></div>
+  <button class="db" id="m-up">▲</button>
+  <div class="db db-blank"></div>
+  <button class="db" id="m-left">◀</button>
+  <button class="db" id="m-action" style="font-size:11px;font-weight:700;">Z</button>
+  <button class="db" id="m-right">▶</button>
+  <div class="db db-blank"></div>
+  <button class="db" id="m-down">▼</button>
+  <div class="db db-blank"></div>
+</div>
+
+<!-- WILD POWER BAR -->
+<div id="wild-power">
+  <div id="wild-power-bar"><div id="wild-power-fill"></div></div>
+  <div id="wild-power-label">Dark Power: 0%</div>
+</div>
+
+<!-- INVENTORY -->
+<div id="inventory">
+  <h3>🎒 Inventory</h3>
+  <div id="inv-items"></div>
+  <button id="inv-close">Close</button>
+</div>
+
+<div id="toast"></div>
+<!-- Cursor overlay: visible when inventory/chest open or cursor mode -->
+<div id="cursor-overlay" style="display:none;position:fixed;inset:0;z-index:5;cursor:default;pointer-events:none;"></div>
+
+<!-- THREE.JS ENGINE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- GLTF LOADER (for custom 3D models from itch.io) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+
+<!-- GAME CODE -->
+<script src="game.js"></script>
+
+</body>
+</html>
